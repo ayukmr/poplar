@@ -7,16 +7,21 @@ void print_char(char character, int col, int row) {
     char* video_mem = (char*) VIDEO_ADDR;
 
     // convert to cell offset
-    int offset = ((row * 80) + col + 1) * 2;
+    int offset = ((row * 80) + col) * 2;
 
     // store char at cell
-    video_mem[offset + 1] = character;
-    video_mem[offset + 2] = WHT_ON_BLK;
+    video_mem[offset] = character;
+    video_mem[offset + 1] = WHT_ON_BLK;
+}
+
+// print at location
+void print_at(char* message, int col, int row) {
+    for (int i = 0; message[i] != '\0'; i++) {
+        print_char(message[i], col + i, row);
+    }
 }
 
 // entry function
 void main() {
-    for (int i = 0; i < 4; i++) {
-        print_char((char) i + 3, i, 1);
-    }
+    print_at("running kernel!", 0, 1);
 }

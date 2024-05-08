@@ -3,33 +3,33 @@ SRCS = $(wildcard kernel/*.c)
 OBJS = $(SRCS:.c=.o)
 
 .PHONY: default
-default: os_image
+default: os.img
 
 # run qemu emulator
 .PHONY: run
-run: os_image
+run: os.img
 	qemu-system-x86_64 $<
 
 # clean build files
 .PHONY: clean
 clean:
-	rm -rf os_image */*.bin */*.o
+	rm -rf os.img */*.bin */*.o
 
 # final os image
-os_image: boot/boot_sect.bin kernel/kernel.bin
+os.img: boot/boot_sect.bin kernel/kernel.bin
 	cat $^ > $@
 
 # kernel binary
 kernel/kernel.bin: kernel/entry.o $(OBJS)
-	$(LD) -Ttext 0x1000 --oformat binary -o $@ $^
+	$(LD) -m elf_i386 -Ttext 0x1000 --oformat binary -o $@ $^
 
 # object from c
 %.o: %.c
-	$(CC) -c -ffreestanding -o $@ $<
+	$(CC) -c -m32 -fno-pie -ffreestanding -o $@ $<
 
 # object from asm
 %.o: %.asm
-	nasm -f elf64 -o $@ $<
+	nasm -f elf32 -o $@ $<
 
 # binary from asm
 %.bin: %.asm
