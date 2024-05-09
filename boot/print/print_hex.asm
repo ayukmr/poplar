@@ -4,10 +4,10 @@ print_hex:
 
     mov ax, -1
 
-    call next_nibble
-    call next_nibble
-    call next_nibble
-    call next_nibble
+    call hex_nibble
+    call hex_nibble
+    call hex_nibble
+    call hex_nibble
 
     mov bx, HEX_OUT ; print hex string
     call print_string
@@ -15,8 +15,8 @@ print_hex:
     popa
     ret
 
-; print next nibble
-next_nibble:
+; set next nibble
+hex_nibble:
     add ax, 1
 
     mov cx, 12 ; amount to shift right
@@ -31,11 +31,11 @@ next_nibble:
 
     cmp bl, 9
 
-    jle print_digit  ; print digit
-    jmp print_letter ; print letter
+    jle hex_digit  ; print digit
+    jmp hex_letter ; print letter
 
-; print as digit
-print_digit:
+; set output digit
+hex_digit:
     add bl, "0" ; convert to digit
 
     mov si, HEX_OUT ; byte position
@@ -46,8 +46,8 @@ print_digit:
 
     ret
 
-; print as letter
-print_letter:
+; set output letter
+hex_letter:
     sub bl, 10
     add bl, "a" ; convert to letter
 
