@@ -1,0 +1,5 @@
+Diagnostics:
+  Suppress: main-return-type
+
+CompileFlags:
+  Add: [-I, kernel, -I, drivers]

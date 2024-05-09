@@ -1,5 +1,5 @@
 # sources
-SRCS = $(wildcard kernel/*.c)
+SRCS = $(wildcard kernel/*.c drivers/*.c)
 OBJS = $(SRCS:.c=.o)
 
 .PHONY: default
@@ -20,8 +20,8 @@ os.img: boot/boot_sect.bin kernel/kernel.bin
 	cat $^ > $@
 
 # kernel binary
-kernel/kernel.bin: kernel/entry.o $(OBJS)
-	$(LD) -m elf_i386 -Ttext 0x1000 --oformat binary -o $@ $^
+kernel/kernel.bin: kernel/entry.o kernel/kernel.o $(OBJS)
+	$(LD) -m elf_i386 -Ttext 0x1000 --oformat binary -o $@ $(wordlist 1, 2, $^)
 
 # object from c
 %.o: %.c
