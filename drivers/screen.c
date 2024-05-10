@@ -1,4 +1,4 @@
-#include "ports.c"
+#include <sys/io.h>
 
 #define VIDEO_ADDR 0xb8000
 
@@ -13,40 +13,36 @@
 
 // convert rows and cols to offset
 int to_offset(int col, int row) {
-    return ((row * MAX_COLS) + col) * 2;
+    return (row * MAX_COLS) + col;
 }
 
 // get cursor offset
 int get_cursor() {
     // read high byte from reg 14
-    port_byte_out(REG_SCREEN_CTRL, 14);
-    int offset = port_byte_in(REG_SCREEN_DATA) << 8;
+    outb(14, REG_SCREEN_CTRL);
+    int offset = inb(REG_SCREEN_DATA) << 8;
 
     // read low byte from reg 15
-    port_byte_out(REG_SCREEN_CTRL, 15);
-    offset += port_byte_in(REG_SCREEN_DATA);
+    outb(15, REG_SCREEN_CTRL);
+    offset += inb(REG_SCREEN_DATA);
 
-    // convert to cell offset
-    return offset * 2;
+    return offset;
 }
 
 // set cursor offset
 void set_cursor(int offset) {
-    // convert to char offset
-    offset /= 2;
-
     // write high byte to reg 14
-    port_byte_out(REG_SCREEN_CTRL, 14);
-    port_byte_out(REG_SCREEN_DATA, (unsigned char) (offset >> 8));
+    outb(14, REG_SCREEN_CTRL);
+    outb(offset >> 8, REG_SCREEN_DATA);
 
     // write low byte to reg 15
-    port_byte_out(REG_SCREEN_CTRL, 15);
-    port_byte_out(REG_SCREEN_DATA, (unsigned char) (offset & 0x00ff));
+    outb(15, REG_SCREEN_CTRL);
+    outb(offset & 0x00ff, REG_SCREEN_DATA);
 }
 
-void print_char(char character, int col, int row, char attr) {
+void print_char(unsigned char character, int col, int row, unsigned char attr) {
     // create pointer to video memory
-    char* video_mem = (char*) VIDEO_ADDR;
+    unsigned char* video_mem = (unsigned char*) VIDEO_ADDR;
 
     int offset;
 
@@ -65,12 +61,12 @@ void print_char(char character, int col, int row, char attr) {
         );
     } else {
         // write char to memory
-        video_mem[offset] = character;
-        video_mem[offset + 1] = attr;
+        video_mem[offset * 2] = character;
+        video_mem[(offset * 2) + 1] = attr;
     }
 
     // move to next char
-    offset += 2;
+    offset += 1;
     set_cursor(offset);
 }
 
